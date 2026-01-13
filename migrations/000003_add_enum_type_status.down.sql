@@ -1,0 +1,2 @@
+DROP TYPE IF EXISTS tx_type;
+DROP TYPE IF EXISTS tx_status;

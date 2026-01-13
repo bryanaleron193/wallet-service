@@ -1,23 +1,16 @@
-FROM golang:1.25-alpine AS builder
+FROM golang:1.25-alpine
 
-RUN apk add --no-cache git ca-certificates
+RUN apk add --no-cache git
 
 WORKDIR /app
+
+RUN go install github.com/air-verse/air@latest
 
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/api
-
-FROM alpine:3.21
-
-WORKDIR /root/
-
-COPY --from=builder /app/main .
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-
 EXPOSE 8080
 
-CMD ["./main"]
+CMD ["air"]

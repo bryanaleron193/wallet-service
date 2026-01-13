@@ -7,6 +7,8 @@
 *.dll
 *.so
 *.dylib
+# The name of your compiled app
+wallet-service
 
 # Test binary, built with `go test -c`
 *.test
@@ -26,7 +28,15 @@ go.work.sum
 
 # env file
 .env
+.env.local
+.env.*.local
+
+# Docker & Database
+postgres_data/
+.docker/
 
 # Editor/IDE
-# .idea/
-# .vscode/
+.idea/
+.vscode/
+*.swp
+*.swo

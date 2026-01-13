@@ -1,1 +1,1 @@
-# wallet-api
+# wallet-service

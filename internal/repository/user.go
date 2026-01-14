@@ -26,20 +26,16 @@ func NewUserRepository(db *pgxpool.Pool) UserRepository {
 func (r *userRepository) Create(ctx context.Context, user *model.User) error {
 	query := `
 		INSERT INTO users (username, full_name, email)
-		VALUES(@username, @fullName, @email)
+		VALUES($1, $2, $3)
 		RETURNING id, created_at, updated_at
 	`
-
-	args := pgx.NamedArgs{
-		"username": user.Username,
-		"fullName": user.FullName,
-		"email":    user.Email,
-	}
 
 	err := r.db.QueryRow(
 		ctx,
 		query,
-		args,
+		user.Username,
+		user.FullName,
+		user.Email,
 	).Scan(
 		&user.ID,
 		&user.CreatedAt,

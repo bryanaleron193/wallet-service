@@ -28,16 +28,11 @@ func NewWalletRepository(db *pgxpool.Pool) WalletRepository {
 func (r *walletRepository) Create(ctx context.Context, wallet *model.Wallet) error {
 	query := `
 		INSERT INTO wallets (user_id, balance)
-		VALUES (@userId, @balance)
+		VALUES ($1, $2)
 		RETURNING id, created_at, updated_at
 	`
 
-	args := pgx.NamedArgs{
-		"userId":  wallet.UserID,
-		"balance": wallet.Balance,
-	}
-
-	err := r.db.QueryRow(ctx, query, args).Scan(
+	err := r.db.QueryRow(ctx, query, wallet.UserID, wallet.Balance).Scan(
 		&wallet.ID,
 		&wallet.CreatedAt,
 		&wallet.UpdatedAt,

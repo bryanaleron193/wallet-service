@@ -9,6 +9,7 @@ import (
 func (c *Container) RegisterRoutes(e *echo.Echo) {
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
+	e.GET("/health", c.HealthHandler.CheckHealth)
 	e.POST("/login", c.UserHandler.Login)
 
 	api := e.Group("/api/v1")

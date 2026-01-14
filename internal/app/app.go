@@ -10,20 +10,22 @@ import (
 
 type Container struct {
 	Config        *config.Config
-	WalletHandler *handler.WalletHandler
+	HealthHandler *handler.HealthHandler
 	UserHandler   *handler.UserHandler
+	WalletHandler *handler.WalletHandler
 }
 
 func NewContainer(db *pgxpool.Pool, cfg *config.Config) *Container {
-	walletRepo := repository.NewWalletRepository(db)
 	userRepo := repository.NewUserRepository(db)
+	walletRepo := repository.NewWalletRepository(db)
 
-	walletService := service.NewWalletService(walletRepo)
 	userService := service.NewUserService(userRepo, cfg)
+	walletService := service.NewWalletService(walletRepo)
 
 	return &Container{
 		Config:        cfg,
-		WalletHandler: handler.NewWalletHandler(walletService),
+		HealthHandler: handler.NewHealthHandler(),
 		UserHandler:   handler.NewUserHandler(userService),
+		WalletHandler: handler.NewWalletHandler(walletService),
 	}
 }

@@ -31,7 +31,7 @@ type LoginResponse struct {
 //
 //	@Summary		User Login
 //	@Description	Authenticate user and return JWT token
-//	@Tags			authentication
+//	@Tags			Authentication
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		LoginRequest	true	"Login Request"

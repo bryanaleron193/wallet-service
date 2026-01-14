@@ -24,9 +24,9 @@ const docTemplate = `{
                 ],
                 "description": "Get user's balance",
                 "tags": [
-                    "wallet"
+                    "Wallet"
                 ],
-                "summary": "Get wallet balance",
+                "summary": "Get Wallet Balance",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -52,9 +52,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "wallet"
+                    "Wallet"
                 ],
-                "summary": "Withdraw money",
+                "summary": "Withdraw Money",
                 "parameters": [
                     {
                         "description": "Withdrawal Amount",
@@ -76,6 +76,26 @@ const docTemplate = `{
                 }
             }
         },
+        "/health": {
+            "get": {
+                "description": "Check if the service is up and running",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Service Health Check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.HealthResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Authenticate user and return JWT token",
@@ -86,7 +106,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "authentication"
+                    "Authentication"
                 ],
                 "summary": "User Login",
                 "parameters": [
@@ -120,6 +140,19 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.HealthResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2026-01-14T17:00:00Z"
                 }
             }
         },

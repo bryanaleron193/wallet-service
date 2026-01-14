@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/bryanaleron193/wallet-service/internal/model"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -24,18 +23,18 @@ func NewTransactionRepository(db *pgxpool.Pool) TransactionRepository {
 func (r *transactionRepository) Create(ctx context.Context, tx *model.Transaction) error {
 	query := `
 		INSERT INTO transactions (wallet_id, amount, transaction_type, description)
-		VALUES (@walletId, @amount, @txType, @description)
+		VALUES ($1, $2, $3, $4)
 		RETURNING id, created_at
 	`
 
-	args := pgx.NamedArgs{
-		"walletId":    tx.WalletID,
-		"amount":      tx.Amount,
-		"txType":      tx.TransactionType,
-		"description": tx.Description,
-	}
-
-	err := r.db.QueryRow(ctx, query, args).Scan(&tx.ID, &tx.CreatedAt)
+	err := r.db.QueryRow(
+		ctx,
+		query,
+		tx.WalletID,
+		tx.Amount,
+		tx.TransactionType,
+		tx.Description,
+	).Scan(&tx.ID, &tx.CreatedAt)
 	if err != nil {
 		return fmt.Errorf("repo.Transaction.Create: %w", err)
 	}

@@ -27,9 +27,9 @@ type BalanceResponse struct {
 
 // GetBalance godoc
 //
-//	@Summary		Get wallet balance
+//	@Summary		Get Wallet Balance
 //	@Description	Get user's balance
-//	@Tags			wallet
+//	@Tags			Wallet
 //	@Security		BearerAuth
 //	@Success		200	{object}	BalanceResponse
 //	@Router			/api/v1/wallets/balance [get]
@@ -72,9 +72,9 @@ type WithdrawResponse struct {
 
 // Withdraw godoc
 //
-//	@Summary		Withdraw money
+//	@Summary		Withdraw Money
 //	@Description	Withdraw money from user's account
-//	@Tags			wallet
+//	@Tags			Wallet
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth

@@ -7,6 +7,15 @@ definitions:
       user_id:
         type: string
     type: object
+  handler.HealthResponse:
+    properties:
+      status:
+        example: ok
+        type: string
+      timestamp:
+        example: "2026-01-14T17:00:00Z"
+        type: string
+    type: object
   handler.LoginRequest:
     properties:
       username:
@@ -60,9 +69,9 @@ paths:
             $ref: '#/definitions/handler.BalanceResponse'
       security:
       - BearerAuth: []
-      summary: Get wallet balance
+      summary: Get Wallet Balance
       tags:
-      - wallet
+      - Wallet
   /api/v1/wallets/withdraw:
     post:
       consumes:
@@ -84,9 +93,22 @@ paths:
             $ref: '#/definitions/handler.WithdrawResponse'
       security:
       - BearerAuth: []
-      summary: Withdraw money
+      summary: Withdraw Money
       tags:
-      - wallet
+      - Wallet
+  /health:
+    get:
+      description: Check if the service is up and running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.HealthResponse'
+      summary: Service Health Check
+      tags:
+      - Health
   /login:
     post:
       consumes:
@@ -108,7 +130,7 @@ paths:
             $ref: '#/definitions/handler.LoginResponse'
       summary: User Login
       tags:
-      - authentication
+      - Authentication
 securityDefinitions:
   BearerAuth:
     description: Type 'Bearer TOKEN' to authenticate

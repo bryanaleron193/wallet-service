@@ -4,12 +4,9 @@ tmp_dir = "tmp" # Changed from bin_dir to tmp to avoid confusion with build arti
 
 [build]
   args_bin = []
-  # Fixed: Linux uses forward slashes and no .exe
   bin = "./tmp/main"
-  # Fixed: Build to the tmp directory
-  cmd = "go build -o ./tmp/main ./cmd/api/main.go"
+cmd = "go build -o ./tmp/main ./cmd/api/main.go"
   delay = 1000
-  # Fixed: Removed backslashes
   entrypoint = ["./tmp/main"]
   exclude_dir = ["assets", "tmp", "vendor", "testdata", "web", "docs", "scripts"]
   exclude_file = []
@@ -25,8 +22,6 @@ tmp_dir = "tmp" # Changed from bin_dir to tmp to avoid confusion with build arti
   poll = true
   poll_interval = 500
   post_cmd = []
-  # Fixed: Use 'make' instead of 'mingw32-make' (ensure 'make' is installed in Dockerfile)
-  # Or comment this out if you don't have a Makefile in the container yet
   pre_cmd = [] 
   rerun = false
   rerun_delay = 500

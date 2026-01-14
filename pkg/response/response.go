@@ -1,15 +1,21 @@
-package handler
+package response
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
 
-type BaseHandler struct{}
+var (
+	ErrInvalidInput  = errors.New("invalid input")
+	ErrNotFound      = errors.New("resource not found")
+	ErrInsufficient  = errors.New("insufficient balance")
+	ErrAlreadyExists = errors.New("resource already exists")
+)
 
-func (h *BaseHandler) internalServerError(c echo.Context, err error) error {
+func InternalServerError(c echo.Context, err error) error {
 	log.Error().
 		Err(err).
 		Str("method", c.Request().Method).
@@ -21,7 +27,7 @@ func (h *BaseHandler) internalServerError(c echo.Context, err error) error {
 	})
 }
 
-func (h *BaseHandler) badRequestResponse(c echo.Context, err error) error {
+func BadRequest(c echo.Context, err error) error {
 	log.Warn().
 		Err(err).
 		Str("method", c.Request().Method).
@@ -33,7 +39,7 @@ func (h *BaseHandler) badRequestResponse(c echo.Context, err error) error {
 	})
 }
 
-func (h *BaseHandler) notFoundResponse(c echo.Context, err error) error {
+func NotFound(c echo.Context, err error) error {
 	log.Warn().
 		Err(err).
 		Str("method", c.Request().Method).
@@ -45,7 +51,7 @@ func (h *BaseHandler) notFoundResponse(c echo.Context, err error) error {
 	})
 }
 
-func (h *BaseHandler) unprocessableEntityResponse(c echo.Context, err error) error {
+func UnprocessableEntity(c echo.Context, err error) error {
 	log.Warn().
 		Err(err).
 		Str("method", c.Request().Method).
@@ -54,5 +60,17 @@ func (h *BaseHandler) unprocessableEntityResponse(c echo.Context, err error) err
 
 	return c.JSON(http.StatusUnprocessableEntity, echo.Map{
 		"error": err.Error(),
+	})
+}
+
+func Unauthorized(c echo.Context, err error) error {
+	log.Warn().
+		Err(err).
+		Str("method", c.Request().Method).
+		Str("path", c.Path()).
+		Msg("unauthorized access attempt")
+
+	return c.JSON(http.StatusUnauthorized, echo.Map{
+		"error": "invalid or missing authentication token",
 	})
 }

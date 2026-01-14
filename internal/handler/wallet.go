@@ -7,13 +7,12 @@ import (
 	"strings"
 
 	"github.com/bryanaleron193/wallet-service/internal/service"
-	"github.com/bryanaleron193/wallet-service/pkg/apperror"
-	"github.com/bryanaleron193/wallet-service/pkg/utils"
+	"github.com/bryanaleron193/wallet-service/pkg/response"
+	"github.com/bryanaleron193/wallet-service/pkg/util"
 	"github.com/labstack/echo/v4"
 )
 
 type WalletHandler struct {
-	BaseHandler
 	walletService service.WalletService
 }
 
@@ -27,22 +26,22 @@ type BalanceResponse struct {
 }
 
 func (h *WalletHandler) GetBalance(c echo.Context) error {
-	userID := c.Param("user_id")
-	if userID == "" {
-		return h.badRequestResponse(c, fmt.Errorf("user_id is required"))
+	userID, ok := c.Get("user_id").(string)
+	if !ok {
+		return response.Unauthorized(c, nil)
 	}
 
 	ctx := c.Request().Context()
 	wallet, err := h.walletService.GetByUserID(ctx, userID)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
-			return h.notFoundResponse(c, err)
+			return response.NotFound(c, err)
 		}
 
-		return h.internalServerError(c, err)
+		return response.InternalServerError(c, err)
 	}
 
-	formattedBalance := utils.FormatRupiah(wallet.Balance)
+	formattedBalance := util.FormatRupiah(wallet.Balance)
 
 	return c.JSON(http.StatusOK, BalanceResponse{
 		UserID:  wallet.UserID,
@@ -64,14 +63,14 @@ type WithdrawResponse struct {
 }
 
 func (h *WalletHandler) Withdraw(c echo.Context) error {
-	userID := c.Param("user_id")
-	if userID == "" {
-		return h.badRequestResponse(c, fmt.Errorf("user_id is required"))
+	userID, ok := c.Get("user_id").(string)
+	if !ok {
+		return response.Unauthorized(c, nil)
 	}
 
 	var req WithdrawRequest
 	if err := c.Bind(&req); err != nil {
-		return h.badRequestResponse(c, fmt.Errorf("invalid request payload"))
+		return response.BadRequest(c, fmt.Errorf("invalid request payload"))
 	}
 
 	ctx := c.Request().Context()
@@ -79,20 +78,20 @@ func (h *WalletHandler) Withdraw(c echo.Context) error {
 	updatedWallet, transactionID, err := h.walletService.Withdraw(ctx, userID, req.Amount, req.Description)
 
 	if err != nil {
-		if errors.Is(err, apperror.ErrInsufficient) {
-			return h.unprocessableEntityResponse(c, fmt.Errorf("insufficient balance"))
+		if errors.Is(err, response.ErrInsufficient) {
+			return response.UnprocessableEntity(c, fmt.Errorf("insufficient balance"))
 		}
-		if errors.Is(err, apperror.ErrNotFound) {
-			return h.notFoundResponse(c, err)
+		if errors.Is(err, response.ErrNotFound) {
+			return response.NotFound(c, err)
 		}
-		return h.internalServerError(c, err)
+		return response.InternalServerError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, WithdrawResponse{
 		TransactionID:  transactionID,
 		UserID:         userID,
-		Amount:         utils.FormatRupiah(req.Amount),
-		CurrentBalance: utils.FormatRupiah(updatedWallet.Balance),
+		Amount:         util.FormatRupiah(req.Amount),
+		CurrentBalance: util.FormatRupiah(updatedWallet.Balance),
 		Message:        "withdrawal successful",
 	})
 }

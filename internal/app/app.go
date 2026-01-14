@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/bryanaleron193/wallet-service/internal/config"
 	"github.com/bryanaleron193/wallet-service/internal/handler"
 	"github.com/bryanaleron193/wallet-service/internal/repository"
 	"github.com/bryanaleron193/wallet-service/internal/service"
@@ -8,15 +9,21 @@ import (
 )
 
 type Container struct {
+	Config        *config.Config
 	WalletHandler *handler.WalletHandler
+	UserHandler   *handler.UserHandler
 }
 
-func NewContainer(db *pgxpool.Pool) *Container {
+func NewContainer(db *pgxpool.Pool, cfg *config.Config) *Container {
 	walletRepo := repository.NewWalletRepository(db)
+	userRepo := repository.NewUserRepository(db)
 
 	walletService := service.NewWalletService(walletRepo)
+	userService := service.NewUserService(userRepo, cfg)
 
 	return &Container{
+		Config:        cfg,
 		WalletHandler: handler.NewWalletHandler(walletService),
+		UserHandler:   handler.NewUserHandler(userService),
 	}
 }

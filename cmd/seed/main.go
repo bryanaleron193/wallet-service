@@ -50,7 +50,7 @@ func main() {
 	}
 	defer db.Close()
 
-	userService := service.NewUserService(repository.NewUserRepository(db))
+	userService := service.NewUserService(repository.NewUserRepository(db), cfg)
 	walletService := service.NewWalletService(repository.NewWalletRepository(db))
 	transactionService := service.NewTransactionService(repository.NewTransactionRepository(db))
 

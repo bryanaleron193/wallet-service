@@ -24,7 +24,7 @@ func main() {
 
 	app.InitMiddleware(e)
 
-	container := app.NewContainer(db)
+	container := app.NewContainer(db, cfg)
 	container.RegisterRoutes(e)
 
 	address := ":" + cfg.App.Port

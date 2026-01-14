@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/bryanaleron193/wallet-service/internal/model"
@@ -11,6 +12,7 @@ import (
 
 type UserRepository interface {
 	Create(ctx context.Context, user *model.User) error
+	GetByUsername(ctx context.Context, username string) (*model.User, error)
 }
 
 type userRepository struct {
@@ -48,4 +50,35 @@ func (r *userRepository) Create(ctx context.Context, user *model.User) error {
 	}
 
 	return nil
+}
+
+func (r *userRepository) GetByUsername(ctx context.Context, username string) (*model.User, error) {
+	query := `
+		SELECT 
+			id, 
+			username, 
+			email, 
+			created_at 
+		FROM users 
+		WHERE 
+			username = $1 
+		LIMIT 1`
+
+	user := &model.User{}
+
+	err := r.db.QueryRow(ctx, query, username).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.CreatedAt,
+	)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return user, nil
 }

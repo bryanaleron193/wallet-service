@@ -11,6 +11,7 @@ import (
 type Config struct {
 	DB  DatabaseConfig
 	App AppConfig
+	JWT JWTConfig
 }
 
 type DatabaseConfig struct {
@@ -23,6 +24,10 @@ type DatabaseConfig struct {
 type AppConfig struct {
 	Port string
 	Env  string
+}
+
+type JWTConfig struct {
+	Secret string
 }
 
 func Load() *Config {
@@ -38,6 +43,9 @@ func Load() *Config {
 			MaxOpenConns: getEnvAsInt("DB_MAX_OPEN_CONNS", 25),
 			MaxIdleTime:  getEnvAsDuration("DB_MAX_IDLE_TIME", 5*time.Minute),
 			MaxLifetime:  getEnvAsDuration("DB_MAX_LIFETIME", 1*time.Hour),
+		},
+		JWT: JWTConfig{
+			Secret: getEnvAsString("JWT_SECRET", "digital_wallet"),
 		},
 	}
 }

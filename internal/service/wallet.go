@@ -6,8 +6,8 @@ import (
 
 	"github.com/bryanaleron193/wallet-service/internal/model"
 	"github.com/bryanaleron193/wallet-service/internal/repository"
-	"github.com/bryanaleron193/wallet-service/pkg/apperror"
-	"github.com/bryanaleron193/wallet-service/pkg/utils"
+	"github.com/bryanaleron193/wallet-service/pkg/response"
+	"github.com/bryanaleron193/wallet-service/pkg/util"
 )
 
 type WalletService interface {
@@ -28,7 +28,7 @@ func NewWalletService(wr repository.WalletRepository) WalletService {
 
 func (s *walletService) CreateWallet(ctx context.Context, userID string, amount float64) (*model.Wallet, error) {
 	if amount < 0 {
-		return nil, fmt.Errorf("initial balance cannot be negative: %w", apperror.ErrInvalidInput)
+		return nil, fmt.Errorf("initial balance cannot be negative: %w", response.ErrInvalidInput)
 	}
 
 	wallet := &model.Wallet{
@@ -46,7 +46,7 @@ func (s *walletService) CreateWallet(ctx context.Context, userID string, amount 
 
 func (s *walletService) GetByUserID(ctx context.Context, userID string) (*model.Wallet, error) {
 	if userID == "" {
-		return nil, fmt.Errorf("user_id is required: %w", apperror.ErrInvalidInput)
+		return nil, fmt.Errorf("user_id is required: %w", response.ErrInvalidInput)
 	}
 
 	wallet, err := s.walletRepo.GetByUserID(ctx, userID)
@@ -59,11 +59,11 @@ func (s *walletService) GetByUserID(ctx context.Context, userID string) (*model.
 
 func (s *walletService) Withdraw(ctx context.Context, userID string, amount float64, desc string) (*model.Wallet, string, error) {
 	if amount <= 0 {
-		return nil, "", fmt.Errorf("amount must be greater than zero: %w", apperror.ErrInvalidInput)
+		return nil, "", fmt.Errorf("amount must be greater than zero: %w", response.ErrInvalidInput)
 	}
 
 	if desc == "" {
-		desc = fmt.Sprintf("Withdrawal of %s", utils.FormatRupiah(amount))
+		desc = fmt.Sprintf("Withdrawal of %s", util.FormatRupiah(amount))
 	}
 
 	wallet, err := s.walletRepo.GetByUserID(ctx, userID)

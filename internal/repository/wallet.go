@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/bryanaleron193/wallet-service/internal/model"
-	"github.com/bryanaleron193/wallet-service/pkg/apperror"
+	"github.com/bryanaleron193/wallet-service/pkg/response"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -70,7 +70,7 @@ func (r *walletRepository) GetByUserID(ctx context.Context, userID string) (*mod
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, apperror.ErrNotFound
+			return nil, response.ErrNotFound
 		}
 
 		return nil, fmt.Errorf("repo.Wallet.GetByUserID: %w", err)
@@ -101,13 +101,13 @@ func (r *walletRepository) Withdraw(ctx context.Context, walletID string, amount
 	err = tx.QueryRow(ctx, queryLock, walletID).Scan(&currentBalance)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, "", apperror.ErrNotFound
+			return nil, "", response.ErrNotFound
 		}
 		return nil, "", fmt.Errorf("failed to lock wallet row: %w", err)
 	}
 
 	if currentBalance < amount {
-		return nil, "", apperror.ErrInsufficient
+		return nil, "", response.ErrInsufficient
 	}
 
 	newBalance := currentBalance - amount

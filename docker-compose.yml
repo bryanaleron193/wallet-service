@@ -13,6 +13,7 @@ services:
       - DB_MAX_OPEN_CONNS=${DB_MAX_OPEN_CONNS}
       - DB_MAX_IDLE_TIME=${DB_MAX_IDLE_TIME}
       - DB_MAX_LIFETIME=${DB_MAX_LIFETIME}
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       db:
         condition: service_healthy

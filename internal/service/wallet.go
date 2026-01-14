@@ -7,11 +7,13 @@ import (
 	"github.com/bryanaleron193/wallet-service/internal/model"
 	"github.com/bryanaleron193/wallet-service/internal/repository"
 	"github.com/bryanaleron193/wallet-service/pkg/apperror"
+	"github.com/bryanaleron193/wallet-service/pkg/utils"
 )
 
 type WalletService interface {
 	CreateWallet(ctx context.Context, userID string, amount float64) (*model.Wallet, error)
 	GetByUserID(ctx context.Context, userID string) (*model.Wallet, error)
+	Withdraw(ctx context.Context, userID string, amount float64, desc string) (*model.Wallet, string, error)
 }
 
 type walletService struct {
@@ -53,4 +55,26 @@ func (s *walletService) GetByUserID(ctx context.Context, userID string) (*model.
 	}
 
 	return wallet, nil
+}
+
+func (s *walletService) Withdraw(ctx context.Context, userID string, amount float64, desc string) (*model.Wallet, string, error) {
+	if amount <= 0 {
+		return nil, "", fmt.Errorf("amount must be greater than zero: %w", apperror.ErrInvalidInput)
+	}
+
+	if desc == "" {
+		desc = fmt.Sprintf("Withdrawal of %s", utils.FormatRupiah(amount))
+	}
+
+	wallet, err := s.walletRepo.GetByUserID(ctx, userID)
+	if err != nil {
+		return nil, "", fmt.Errorf("service.Withdraw: %w", err)
+	}
+
+	updatedWallet, transactionID, err := s.walletRepo.Withdraw(ctx, wallet.ID, amount, desc)
+	if err != nil {
+		return nil, "", fmt.Errorf("service.Withdraw execution: %w", err)
+	}
+
+	return updatedWallet, transactionID, nil
 }

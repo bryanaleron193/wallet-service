@@ -44,3 +44,15 @@ func (h *BaseHandler) notFoundResponse(c echo.Context, err error) error {
 		"error": "not found",
 	})
 }
+
+func (h *BaseHandler) unprocessableEntityResponse(c echo.Context, err error) error {
+	log.Warn().
+		Err(err).
+		Str("method", c.Request().Method).
+		Str("path", c.Path()).
+		Msg("unprocessable entity")
+
+	return c.JSON(http.StatusUnprocessableEntity, echo.Map{
+		"error": err.Error(),
+	})
+}

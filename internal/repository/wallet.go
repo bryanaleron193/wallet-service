@@ -14,6 +14,7 @@ import (
 type WalletRepository interface {
 	Create(ctx context.Context, wallet *model.Wallet) error
 	GetByUserID(ctx context.Context, userID string) (*model.Wallet, error)
+	Withdraw(ctx context.Context, walletID string, amount float64, desc string) (*model.Wallet, string, error)
 }
 
 type walletRepository struct {
@@ -77,4 +78,72 @@ func (r *walletRepository) GetByUserID(ctx context.Context, userID string) (*mod
 	}
 
 	return wallet, nil
+}
+
+func (r *walletRepository) Withdraw(ctx context.Context, walletID string, amount float64, desc string) (*model.Wallet, string, error) {
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to start transaction: %w", err)
+	}
+
+	defer tx.Rollback(ctx)
+
+	var currentBalance float64
+
+	queryLock := `
+		SELECT balance 
+		FROM wallets 
+		WHERE 
+			id = $1 
+			AND deleted_at IS NULL 
+		FOR UPDATE
+	`
+
+	err = tx.QueryRow(ctx, queryLock, walletID).Scan(&currentBalance)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, "", apperror.ErrNotFound
+		}
+		return nil, "", fmt.Errorf("failed to lock wallet row: %w", err)
+	}
+
+	if currentBalance < amount {
+		return nil, "", apperror.ErrInsufficient
+	}
+
+	newBalance := currentBalance - amount
+
+	queryUpdate := `
+		UPDATE wallets 
+		SET 
+			balance = $1
+		WHERE id = $2
+	`
+
+	_, err = tx.Exec(ctx, queryUpdate, newBalance, walletID)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to update wallet balance: %w", err)
+	}
+
+	var transactionID string
+
+	queryInsert := `
+		INSERT INTO transactions (wallet_id, amount, transaction_type, description)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id
+	`
+
+	err = tx.QueryRow(ctx, queryInsert, walletID, amount, "withdraw", desc).Scan(&transactionID)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to insert transaction record: %w", err)
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, "", fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return &model.Wallet{
+		ID:      walletID,
+		Balance: newBalance,
+	}, transactionID, nil
 }

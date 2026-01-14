@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 	"strconv"
@@ -26,15 +27,24 @@ var baseNames = []string{
 
 func main() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339})
-
 	logger := log.With().Str("module", "seeder").Logger()
+
+	var dbURLFlag string
+	flag.StringVar(&dbURLFlag, "db", "", "Database URL override")
+	flag.Parse()
+
+	cfg := config.Load()
+
+	finalURL := cfg.DB.URL
+	if dbURLFlag != "" {
+		finalURL = dbURLFlag
+		logger.Info().Msg("Using database URL override from flag")
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	cfg := config.Load()
-
-	db, err := pgxpool.New(ctx, cfg.DB.URL)
+	db, err := pgxpool.New(ctx, finalURL)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Unable to connect to database")
 	}

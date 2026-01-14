@@ -1,6 +1,6 @@
 include .env
 
-DATABASE_URL := $(subst \r,,$(DATABASE_URL))
+DATABASE_URL := $(shell powershell -Command "$$url = '$(DATABASE_URL)'.Replace('\r', '').Replace('@db:', '@127.0.0.1:').Replace(':5432/', ':$(DB_PORT)/'); Write-Output $$url")
 MIGRATIONS_PATH := ./migrations
 
 .PHONY: migration migrate-up migrate-down migrate-force seed

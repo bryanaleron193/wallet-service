@@ -18,10 +18,27 @@ func NewUserHandler(userService service.UserService) *UserHandler {
 	}
 }
 
+type LoginRequest struct {
+	Username string `json:"username" validate:"required"`
+}
+
+type LoginResponse struct {
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
+}
+
+// Login godoc
+//
+//	@Summary		User Login
+//	@Description	Authenticate user and return JWT token
+//	@Tags			authentication
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		LoginRequest	true	"Login Request"
+//	@Success		200		{object}	LoginResponse
+//	@Router			/login [post]
 func (h *UserHandler) Login(c echo.Context) error {
-	var req struct {
-		Username string `json:"username" validate:"required"`
-	}
+	var req LoginRequest
 
 	if err := c.Bind(&req); err != nil {
 		return response.BadRequest(c, err)
@@ -36,7 +53,8 @@ func (h *UserHandler) Login(c echo.Context) error {
 		return response.Unauthorized(c, err)
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"access_token": "Bearer" + token,
+	return c.JSON(http.StatusOK, LoginResponse{
+		AccessToken: token,
+		TokenType:   "Bearer",
 	})
 }

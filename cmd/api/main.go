@@ -7,8 +7,20 @@ import (
 	"github.com/bryanaleron193/wallet-service/pkg/logger"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
+
+	_ "github.com/bryanaleron193/wallet-service/docs"
 )
 
+//	@title			Wallet API
+//	@version		1.0
+//	@description	This is a digital wallet service.
+//	@host			localhost:8081
+//	@BasePath		/
+
+// @securityDefinitions.apikey	BearerAuth
+// @in							header
+// @name						Authorization
+// @description				Type 'Bearer TOKEN' to authenticate
 func main() {
 	cfg := config.Load()
 	logger.Setup(cfg.App.Env)

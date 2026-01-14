@@ -1,0 +1,118 @@
+basePath: /
+definitions:
+  handler.BalanceResponse:
+    properties:
+      balance:
+        type: string
+      user_id:
+        type: string
+    type: object
+  handler.LoginRequest:
+    properties:
+      username:
+        type: string
+    required:
+    - username
+    type: object
+  handler.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      token_type:
+        type: string
+    type: object
+  handler.WithdrawRequest:
+    properties:
+      amount:
+        type: number
+      description:
+        type: string
+    required:
+    - amount
+    type: object
+  handler.WithdrawResponse:
+    properties:
+      amount:
+        type: string
+      current_balance:
+        type: string
+      message:
+        type: string
+      transaction_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  description: This is a digital wallet service.
+  title: Wallet API
+  version: "1.0"
+paths:
+  /api/v1/wallets/balance:
+    get:
+      description: Get user's balance
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.BalanceResponse'
+      security:
+      - BearerAuth: []
+      summary: Get wallet balance
+      tags:
+      - wallet
+  /api/v1/wallets/withdraw:
+    post:
+      consumes:
+      - application/json
+      description: Withdraw money from user's account
+      parameters:
+      - description: Withdrawal Amount
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.WithdrawRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.WithdrawResponse'
+      security:
+      - BearerAuth: []
+      summary: Withdraw money
+      tags:
+      - wallet
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Login Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.LoginResponse'
+      summary: User Login
+      tags:
+      - authentication
+securityDefinitions:
+  BearerAuth:
+    description: Type 'Bearer TOKEN' to authenticate
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

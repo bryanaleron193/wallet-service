@@ -25,6 +25,14 @@ type BalanceResponse struct {
 	Balance string `json:"balance"`
 }
 
+// GetBalance godoc
+//
+//	@Summary		Get wallet balance
+//	@Description	Get user's balance
+//	@Tags			wallet
+//	@Security		BearerAuth
+//	@Success		200	{object}	BalanceResponse
+//	@Router			/api/v1/wallets/balance [get]
 func (h *WalletHandler) GetBalance(c echo.Context) error {
 	userID, ok := c.Get("user_id").(string)
 	if !ok {
@@ -62,6 +70,17 @@ type WithdrawResponse struct {
 	Message        string `json:"message"`
 }
 
+// Withdraw godoc
+//
+//	@Summary		Withdraw money
+//	@Description	Withdraw money from user's account
+//	@Tags			wallet
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			request	body		WithdrawRequest	true	"Withdrawal Amount"
+//	@Success		200		{object}	WithdrawResponse
+//	@Router			/api/v1/wallets/withdraw [post]
 func (h *WalletHandler) Withdraw(c echo.Context) error {
 	userID, ok := c.Get("user_id").(string)
 	if !ok {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/bryanaleron193/wallet-service/internal/model"
 	"github.com/bryanaleron193/wallet-service/internal/repository"
+	"github.com/bryanaleron193/wallet-service/pkg/apperror"
 )
 
 type TransactionService interface {
@@ -24,7 +25,7 @@ func NewTransactionService(tr repository.TransactionRepository) TransactionServi
 
 func (s *transactionService) CreateTransaction(ctx context.Context, walletID string, amount float64, txType string, description *string) (*model.Transaction, error) {
 	if amount <= 0 {
-		return nil, fmt.Errorf("transaction amount must be positive")
+		return nil, fmt.Errorf("transaction amount must be positive: %w", apperror.ErrInvalidInput)
 	}
 
 	tx := &model.Transaction{

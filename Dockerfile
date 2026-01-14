@@ -1,6 +1,6 @@
 FROM golang:1.25-alpine
 
-RUN apk add --no-cache git
+RUN apk add --no-cache git build-base
 
 WORKDIR /app
 
@@ -11,6 +11,6 @@ RUN go mod download
 
 COPY . .
 
-EXPOSE 8080
+RUN mkdir -p tmp
 
-CMD ["air"]
+CMD ["air", "-c", ".air.toml"]

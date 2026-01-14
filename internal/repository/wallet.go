@@ -2,15 +2,18 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/bryanaleron193/wallet-service/internal/model"
+	"github.com/bryanaleron193/wallet-service/pkg/apperror"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type WalletRepository interface {
 	Create(ctx context.Context, wallet *model.Wallet) error
+	GetByUserID(ctx context.Context, userID string) (*model.Wallet, error)
 }
 
 type walletRepository struct {
@@ -45,4 +48,33 @@ func (r *walletRepository) Create(ctx context.Context, wallet *model.Wallet) err
 	}
 
 	return nil
+}
+
+func (r *walletRepository) GetByUserID(ctx context.Context, userID string) (*model.Wallet, error) {
+	query := `
+		SELECT 
+			id, 
+			user_id, 
+			balance
+		FROM wallets 
+		WHERE 
+			user_id = $1 
+			AND deleted_at IS NULL`
+
+	wallet := &model.Wallet{}
+	err := r.db.QueryRow(ctx, query, userID).Scan(
+		&wallet.ID,
+		&wallet.UserID,
+		&wallet.Balance,
+	)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, apperror.ErrNotFound
+		}
+
+		return nil, fmt.Errorf("repo.Wallet.GetByUserID: %w", err)
+	}
+
+	return wallet, nil
 }

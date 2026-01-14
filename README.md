@@ -15,20 +15,16 @@ Tech Stack:
 5. Live Reload: Air
 6. Containerization: Docker & Docker Compose
 
-Step:
-1. docker-compose up --build
-2. make migrate-up (do mingw32-make migrate-up if you use windows)
-3. make seed (do mingw32-make seed if you use windows)
-
-Installation & Setup
+Installation & Setup:
 1. Clone the repository:
     - git clone https://github.com/bryanaleron193/wallet-service.git
-2. Start the Database + Application:
+2. copy .env which i gave you from the submission email
+3. Start the Database + Application:
     - docker-compose up --build
-3. Run Database Migrations:
+4. Run Database Migrations:
     - make migrate-up
     # Windows: mingw32-make migrate-up
-4. Seed Test Data: This creates a test user with an initial balance.
+5. Seed Test Data: This creates a test user with an initial balance.
     - make seed
     # Windows: mingw32-make seed
 
@@ -41,7 +37,7 @@ API Documentation:
 - GET /api/v1/wallets/balance: Check current balance (Requires Auth).
 - POST /api/v1/wallets/withdraw: Withdraw funds (Requires Auth).
 
-Testing the API
+Testing the API:
 1. Login: Use the seeded username to obtain a JWT token.
 2. Authorize: Click the "Authorize" button in Swagger and enter Bearer <your_token>.
 3. Transaction: Perform a withdrawal and balance inquiry.
